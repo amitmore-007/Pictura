@@ -1,7 +1,7 @@
-# 📸 **Pictura** 
+# 📸 **Dobbt** 
 ### *Modern Image Management Platform*
 
-![Pictura Hero](./frontend/public/Landing.png)
+![Dobbt Hero](./frontend/public/Landing.png)
 
 **A beautiful, powerful, and intuitive image management platform for organizing your digital memories**
 
@@ -14,11 +14,10 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-Powered-orange.svg?style=for-the-badge&logo=cloudinary)](https://cloudinary.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg?style=for-the-badge&logo=typescript)](https://typescriptlang.org/)
 
-[🚀 **Live Demo**](https://pictura-demo.vercel.app) • [📖 **Documentation**](docs/) • [🐛 **Report Bug**](issues/) • [✨ **Request Feature**](issues/)
-
+[🚀 **Live Demo**](https://dobbt-demo.vercel.app) •
 ---
 
-## 🌟 **Why Choose Pictura?**
+## 🌟 **Why Choose Dobbt?**
 
 <table>
 <tr>
@@ -168,8 +167,8 @@
 
 ```bash
 # 1️⃣ Clone the repository
-git clone https://github.com/yourusername/pictura.git
-cd pictura
+git clone https://github.com/yourusername/dobbt.git
+cd dobbt
 
 # 2️⃣ Install dependencies
 npm install
@@ -190,10 +189,10 @@ Create `backend/.env` file:
 
 ```env
 # 🗄️ Database Configuration
-MONGODB_URI=mongodb://localhost:27017/pictura
+MONGODB_URI=mongodb://localhost:27017/dobbt
 
 # 🔐 JWT Configuration
-JWT_SECRET=your_super_secret_jwt_key_make_it_very_long_and_secure_pictura_2024
+JWT_SECRET=your_super_secret_jwt_key_make_it_very_long_and_secure_dobbt_2024
 JWT_EXPIRE=30d
 
 # ☁️ Cloudinary Configuration
@@ -207,6 +206,62 @@ NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 ```
 
+Create `frontend/.env` file:
+
+```env
+# 🌐 API Configuration
+VITE_API_URL=http://localhost:5000/api
+VITE_APP_NAME=Dobbt
+```
+
+For production deployment, create `frontend/.env.production`:
+
+```env
+# 🌐 Production API Configuration
+VITE_API_URL=https://your-backend-app-name.onrender.com/api
+VITE_APP_NAME=Dobbt
+```
+
+### 🚀 **Deployment on Render**
+
+#### Backend Deployment:
+1. Create a new **Web Service** on Render
+2. Connect your GitHub repository
+3. Set the following environment variables:
+   - `MONGODB_URI`: Your MongoDB Atlas connection string
+   - `JWT_SECRET`: A secure random string (use a password generator)
+   - `CLOUDINARY_CLOUD_NAME`: Your Cloudinary cloud name
+   - `CLOUDINARY_API_KEY`: Your Cloudinary API key
+   - `CLOUDINARY_API_SECRET`: Your Cloudinary API secret
+   - `NODE_ENV`: `production`
+   - `PORT`: `10000` (Render's default)
+   - `CLIENT_URL`: `https://your-frontend-app-name.onrender.com`
+
+#### Frontend Deployment:
+1. Create a new **Static Site** on Render
+2. Connect your GitHub repository
+3. Set **Root Directory**: `frontend`
+4. Set **Build Command**: `npm run build`
+5. Set **Publish Directory**: `dist`
+6. Add environment variable:
+   - `VITE_API_URL`: `https://your-backend-app-name.onrender.com/api`
+
+#### Important Notes:
+- Deploy backend first, then update frontend environment with backend URL
+- Update CORS origins in backend server.js with your actual frontend URL
+- Make sure MongoDB Atlas allows connections from anywhere (0.0.0.0/0) for Render
+
+#### CORS Configuration:
+After deployment, update your backend `server.js` to include your production URLs:
+
+```javascript
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-frontend-app-name.onrender.com', // Add your actual frontend URL
+  process.env.CLIENT_URL
+].filter(Boolean);
+```
+
 ### 🎉 **Launch**
 
 Once everything is set up, navigate to `http://localhost:5173` and start organizing your images! 
@@ -216,7 +271,7 @@ Once everything is set up, navigate to `http://localhost:5173` and start organiz
 ## 📂 **Project Architecture**
 
 ```
-📁 pictura/
+📁 dobbt/
 ┣ 📁 backend/                 # 🖥️ Node.js + Express Server
 ┃ ┣ 📁 config/               # ⚙️ Configuration files
 ┃ ┣ 📁 controllers/          # 🎮 Route controllers
@@ -268,7 +323,6 @@ We welcome contributions from the community! Here's how you can help:
 
 <div align="center">
 
-[![Contributors](https://contrib.rocks/image?repo=yourusername/pictura)](https://github.com/yourusername/pictura/graphs/contributors)
 
 </div>
 
@@ -305,7 +359,7 @@ We welcome contributions from the community! Here's how you can help:
 
 <div align="center">
 
-**Built with ❤️ by the Pictura Team**
+**Built with ❤️ by the Dobbt Team**
 
 *Special thanks to all contributors and the open-source community*
 
@@ -313,8 +367,8 @@ We welcome contributions from the community! Here's how you can help:
 
 ### 🌟 **Star this repository if you found it helpful!**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/pictura?style=social)](https://github.com/yourusername/pictura/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/pictura?style=social)](https://github.com/yourusername/pictura/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/dobbt?style=social)](https://github.com/yourusername/dobbt/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/yourusername/dobbt?style=social)](https://github.com/yourusername/dobbt/network/members)
 
 </div>
 
@@ -322,6 +376,6 @@ We welcome contributions from the community! Here's how you can help:
 
 <div align="center">
 
-**[⬆ Back to Top](#-pictura)**
+**[⬆ Back to Top](#-dobbt)**
 
 </div>

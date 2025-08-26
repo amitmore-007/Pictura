@@ -10,6 +10,9 @@ const api = axios.create({
   },
 });
 
+// Add a console log to verify the API URL being used
+console.log('API Base URL:', API_BASE_URL);
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
