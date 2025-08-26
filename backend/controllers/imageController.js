@@ -5,6 +5,12 @@ const multer = require('multer');
 
 const uploadImage = async (req, res) => {
   try {
+    console.log('Upload request received:', {
+      userId: req.user?.userId,
+      hasFile: !!req.file,
+      body: req.body
+    });
+
     const { name, folderId, tags } = req.body;
     
     if (!req.file) {
@@ -28,7 +34,7 @@ const uploadImage = async (req, res) => {
     if (folderId && folderId !== 'root') {
       folder = await Folder.findOne({
         _id: folderId,
-        user: req.user.id
+        user: req.user.userId // Fix: use userId instead of id
       });
 
       if (!folder) {
@@ -39,9 +45,11 @@ const uploadImage = async (req, res) => {
       }
     }
 
+    console.log('Starting Cloudinary upload...');
+
     // Upload to Cloudinary
     const uploadPromise = new Promise((resolve, reject) => {
-      const folderPath = folder ? `dobbt/${req.user.id}/${folder.name}` : `dobbt/${req.user.id}/root`;
+      const folderPath = folder ? `dobbt/${req.user.userId}/${folder.name}` : `dobbt/${req.user.userId}/root`;
       
       cloudinary.uploader.upload_stream(
         {
@@ -56,6 +64,7 @@ const uploadImage = async (req, res) => {
             console.error('Cloudinary upload error:', error);
             reject(error);
           } else {
+            console.log('Cloudinary upload successful:', result.public_id);
             resolve(result);
           }
         }
@@ -70,13 +79,15 @@ const uploadImage = async (req, res) => {
       cloudinaryUrl: cloudinaryResult.secure_url,
       cloudinaryId: cloudinaryResult.public_id,
       folder: folderId && folderId !== 'root' ? folderId : null,
-      user: req.user.id,
+      user: req.user.userId, // Fix: use userId instead of id
       size: cloudinaryResult.bytes,
       format: cloudinaryResult.format,
       tags: tags ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
     });
 
     await image.populate('folder', 'name color');
+
+    console.log('Image saved to database:', image._id);
 
     res.status(201).json({
       success: true,
@@ -106,7 +117,7 @@ const getImages = async (req, res) => {
   try {
     const { folderId, search, page = 1, limit = 20 } = req.query;
     
-    let query = { user: req.user.id };
+    let query = { user: req.user.userId }; // Fix: use userId instead of id
     
     if (folderId) {
       if (folderId === 'root') {
@@ -115,7 +126,7 @@ const getImages = async (req, res) => {
         // Verify folder belongs to user
         const folder = await Folder.findOne({
           _id: folderId,
-          user: req.user.id
+          user: req.user.userId // Fix: use userId instead of id
         });
 
         if (!folder) {
@@ -177,19 +188,26 @@ const getImageById = async (req, res) => {
   try {
     const image = await Image.findOne({
       _id: req.params.id,
-      user: req.user.id
-    }).populate('folder', 'name path color');
+      user: req.user.userId // Fix: use userId instead of id
+    }).populate('folder', 'name color');
 
     if (!image) {
-      return res.status(404).json({ message: 'Image not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Image not found' 
+      });
     }
 
     res.json({
       success: true,
-      image
+      data: image
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: error.message 
+    });
   }
 };
 
@@ -199,25 +217,32 @@ const updateImage = async (req, res) => {
     
     const image = await Image.findOne({
       _id: req.params.id,
-      user: req.user.id
+      user: req.user.userId // Fix: use userId instead of id
     });
 
     if (!image) {
-      return res.status(404).json({ message: 'Image not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Image not found' 
+      });
     }
 
     if (name) image.name = name;
     if (tags) image.tags = tags.split(',').map(tag => tag.trim());
 
     await image.save();
-    await image.populate('folder', 'name path color');
+    await image.populate('folder', 'name color');
 
     res.json({
       success: true,
-      image
+      data: image
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: error.message 
+    });
   }
 };
 
@@ -225,11 +250,14 @@ const deleteImage = async (req, res) => {
   try {
     const image = await Image.findOne({
       _id: req.params.id,
-      user: req.user.id
+      user: req.user.userId // Fix: use userId instead of id
     });
 
     if (!image) {
-      return res.status(404).json({ message: 'Image not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Image not found' 
+      });
     }
 
     // Delete from Cloudinary
@@ -243,7 +271,11 @@ const deleteImage = async (req, res) => {
       message: 'Image deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: error.message 
+    });
   }
 };
 
@@ -252,11 +284,14 @@ const searchImages = async (req, res) => {
     const { q, page = 1, limit = 20 } = req.query;
     
     if (!q) {
-      return res.status(400).json({ message: 'Search query is required' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Search query is required' 
+      });
     }
 
     const query = {
-      user: req.user.id,
+      user: req.user.userId, // Fix: use userId instead of id
       $or: [
         { name: { $regex: q, $options: 'i' } },
         { tags: { $in: [new RegExp(q, 'i')] } }
@@ -264,7 +299,7 @@ const searchImages = async (req, res) => {
     };
 
     const images = await Image.find(query)
-      .populate('folder', 'name path color')
+      .populate('folder', 'name color')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -273,14 +308,18 @@ const searchImages = async (req, res) => {
 
     res.json({
       success: true,
-      images,
+      data: images,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
       total,
       query: q
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: error.message 
+    });
   }
 };
 

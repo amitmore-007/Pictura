@@ -4,8 +4,8 @@ const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
 // Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '30d',
   });
 };
@@ -36,15 +36,11 @@ const signup = async (req, res) => {
       });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create user
+    // Create user - let the model handle password hashing
     const user = await User.create({
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password, // Don't hash here - let the pre-save middleware handle it
     });
 
     console.log('User created successfully:', user._id);
@@ -96,8 +92,6 @@ const login = async (req, res) => {
     // Check for user (explicitly select password field)
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     
-    console.log('User found:', !!user);
-    
     if (!user) {
       console.log('User not found for email:', email);
       return res.status(401).json({
@@ -106,25 +100,12 @@ const login = async (req, res) => {
       });
     }
 
-    console.log('User details:', {
-      id: user._id,
-      email: user.email,
-      hasPassword: !!user.password,
-      passwordHash: user.password ? user.password.substring(0, 10) + '...' : 'NO HASH'
-    });
+    console.log('User found:', { id: user._id, email: user.email });
 
-    // Check password using bcrypt directly and the model method
-    const isPasswordCorrect1 = await bcrypt.compare(password, user.password);
-    const isPasswordCorrect2 = await user.comparePassword(password);
+    // Check password using the model method only
+    const isPasswordCorrect = await user.comparePassword(password);
     
-    console.log('Password comparison results:', {
-      bcryptDirect: isPasswordCorrect1,
-      modelMethod: isPasswordCorrect2,
-      inputPassword: password,
-      hashedPassword: user.password ? user.password.substring(0, 20) + '...' : 'NO HASH'
-    });
-
-    if (!isPasswordCorrect1) {
+    if (!isPasswordCorrect) {
       console.log('Password incorrect for user:', email);
       return res.status(401).json({
         success: false,
@@ -161,7 +142,7 @@ const login = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.userId);
     
     if (!user) {
       return res.status(404).json({
@@ -192,4 +173,4 @@ module.exports = {
   login,
   getMe,
 };
-
+       

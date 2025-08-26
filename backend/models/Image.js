@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
-const ImageSchema = new mongoose.Schema({
+const imageSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Image name is required'],
     trim: true,
-    maxlength: [200, 'Image name cannot exceed 200 characters'],
+    maxlength: [200, 'Image name cannot be more than 200 characters'],
   },
   cloudinaryUrl: {
     type: String,
@@ -18,7 +18,7 @@ const ImageSchema = new mongoose.Schema({
   folder: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Folder',
-    required: false, // Allow images without folders (in root)
+    default: null, // null means root folder
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,26 +27,28 @@ const ImageSchema = new mongoose.Schema({
   },
   size: {
     type: Number,
-    required: true,
+    default: 0,
   },
   format: {
     type: String,
-    required: true,
+    default: 'jpg',
   },
   tags: [{
     type: String,
     trim: true,
+    lowercase: true,
   }],
-  uploadedAt: {
-    type: Date,
-    default: Date.now,
+  isActive: {
+    type: Boolean,
+    default: true,
   },
 }, {
   timestamps: true,
 });
 
-// Index for faster queries
-ImageSchema.index({ user: 1, folder: 1 });
-ImageSchema.index({ user: 1, name: 'text', tags: 'text' });
+// Index for better query performance
+imageSchema.index({ user: 1, folder: 1 });
+imageSchema.index({ user: 1, tags: 1 });
+imageSchema.index({ user: 1, name: 'text', tags: 'text' });
 
-module.exports = mongoose.model('Image', ImageSchema);
+module.exports = mongoose.model('Image', imageSchema);

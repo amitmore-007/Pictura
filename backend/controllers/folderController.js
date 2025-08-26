@@ -17,10 +17,12 @@ const createFolder = async (req, res) => {
 
     const { name, color, parent } = req.body;
 
+    console.log('Creating folder:', { name, color, parent, userId: req.user.userId });
+
     // Check if folder with same name exists in same parent
     const existingFolder = await Folder.findOne({
       name,
-      user: req.user.id,
+      user: req.user.userId, // Fix: use userId instead of id
       parent: parent || null
     });
 
@@ -35,7 +37,7 @@ const createFolder = async (req, res) => {
       name,
       color: color || '#3B82F6',
       parent: parent || null,
-      user: req.user.id
+      user: req.user.userId // Fix: use userId instead of id
     });
 
     await folder.save();
@@ -48,6 +50,8 @@ const createFolder = async (req, res) => {
       ...folder.toObject(),
       imageCount: 0
     };
+
+    console.log('Folder created successfully:', folder._id);
 
     res.status(201).json({
       success: true,
@@ -70,7 +74,7 @@ const getFolders = async (req, res) => {
     const { parent } = req.query;
     
     const query = {
-      user: req.user.id,
+      user: req.user.userId, // Fix: use userId instead of id
       parent: parent || null
     };
 
@@ -81,7 +85,7 @@ const getFolders = async (req, res) => {
       folders.map(async (folder) => {
         const imageCount = await require('../models/Image').countDocuments({
           folder: folder._id,
-          user: req.user.id
+          user: req.user.userId // Fix: use userId instead of id
         });
         
         return {
@@ -111,7 +115,7 @@ const getFolderById = async (req, res) => {
   try {
     const folder = await Folder.findOne({
       _id: req.params.id,
-      user: req.user.id
+      user: req.user.userId // Fix: use userId instead of id
     });
 
     if (!folder) {
@@ -141,7 +145,7 @@ const updateFolder = async (req, res) => {
     const { name, color } = req.body;
 
     const folder = await Folder.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
+      { _id: req.params.id, user: req.user.userId }, // Fix: use userId instead of id
       { name, color },
       { new: true, runValidators: true }
     );
@@ -173,7 +177,7 @@ const deleteFolder = async (req, res) => {
   try {
     const folder = await Folder.findOneAndDelete({
       _id: req.params.id,
-      user: req.user.id
+      user: req.user.userId // Fix: use userId instead of id
     });
 
     if (!folder) {
@@ -186,12 +190,12 @@ const deleteFolder = async (req, res) => {
     // Check if folder has subfolders or images
     const subfolders = await Folder.countDocuments({
       parent: folder._id,
-      user: req.user.id,
+      user: req.user.userId, // Fix: use userId instead of id
     });
 
     const images = await Image.countDocuments({
       folder: folder._id,
-      user: req.user.id,
+      user: req.user.userId, // Fix: use userId instead of id
     });
 
     if (subfolders > 0 || images > 0) {

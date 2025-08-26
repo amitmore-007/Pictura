@@ -5,31 +5,26 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true, // Use HTTPS URLs
 });
 
-// Test the connection
+// Test Cloudinary connection
 const testCloudinaryConnection = async () => {
   try {
-    // Check if credentials are loaded
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      throw new Error('Cloudinary credentials are missing from environment variables');
-    }
-    
     const result = await cloudinary.api.ping();
-    console.log('✅ Cloudinary connection successful:', result);
+    console.log('✅ Cloudinary connection successful:', {
+      status: result.status,
+      rate_limit_allowed: result.rate_limit_allowed,
+      rate_limit_reset_at: new Date(result.rate_limit_reset_at * 1000),
+      rate_limit_remaining: result.rate_limit_remaining
+    });
     return true;
   } catch (error) {
     console.error('❌ Cloudinary connection failed:', error.message);
-    console.log('Cloudinary config check:');
-    console.log('- Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ Set' : '❌ Missing');
-    console.log('- API Key:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
-    console.log('- API Secret:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
     return false;
   }
 };
 
-// Test connection on module load
+// Call test on module load
 testCloudinaryConnection();
 
 module.exports = cloudinary;

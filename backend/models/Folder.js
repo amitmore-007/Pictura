@@ -10,68 +10,35 @@ const FolderSchema = new mongoose.Schema({
   color: {
     type: String,
     default: '#3B82F6',
-    validate: {
-      validator: function(v) {
-        return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(v);
-      },
-      message: 'Color must be a valid hex color',
-    },
+    match: [/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Please enter a valid hex color'],
   },
   parent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Folder',
-    default: null,
+    default: null, // null means root folder
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  path: {
-    type: String,
-    default: '',
+  isActive: {
+    type: Boolean,
+    default: true,
   },
 }, {
   timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
 });
 
-// Virtual for image count
-FolderSchema.virtual('imageCount', {
-  ref: 'Image',
-  localField: '_id',
-  foreignField: 'folder',
-  count: true,
-});
-
-// Index for faster queries
+// Index for better query performance
 FolderSchema.index({ user: 1, parent: 1 });
 FolderSchema.index({ user: 1, name: 1, parent: 1 }, { unique: true });
 
-// Pre-save middleware to generate path
-FolderSchema.pre('save', async function(next) {
-  if (this.isNew || this.isModified('name') || this.isModified('parent')) {
-    try {
-      let pathArray = [this.name];
-      let currentParent = this.parent;
-      
-      while (currentParent) {
-        const parentFolder = await this.constructor.findById(currentParent);
-        if (parentFolder) {
-          pathArray.unshift(parentFolder.name);
-          currentParent = parentFolder.parent;
-        } else {
-          break;
-        }
-      }
-      
-      this.path = pathArray.join('/');
-    } catch (error) {
-      return next(error);
-    }
-  }
-  next();
+// Virtual for getting the folder path
+FolderSchema.virtual('path').get(function() {
+  // This would need to be populated in queries if needed
+  return this.name;
 });
 
 module.exports = mongoose.model('Folder', FolderSchema);
+  

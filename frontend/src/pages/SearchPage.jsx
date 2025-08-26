@@ -15,13 +15,13 @@ const SearchPage = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]); // Ensure default empty array
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [recentSearches, setRecentSearches] = useState([]);
+  const [recentSearches, setRecentSearches] = useState([]); // Ensure default empty array
 
   // Modal states
   const [showEditImage, setShowEditImage] = useState(false);
@@ -56,8 +56,9 @@ const SearchPage = () => {
       setHasSearched(true);
       
       const response = await imageAPI.search(query, page);
-      setImages(response.data.images);
-      setTotalPages(response.data.totalPages);
+      // Add safety checks for the response data
+      setImages(response.data?.data || response.data?.images || []);
+      setTotalPages(response.data?.totalPages || 1);
       setCurrentPage(page);
 
       // Update URL
@@ -66,6 +67,7 @@ const SearchPage = () => {
       // Save to recent searches
       saveRecentSearch(query);
     } catch (error) {
+      console.error('Search error:', error);
       toast.error('Search failed');
       setImages([]);
     } finally {
@@ -273,7 +275,7 @@ const SearchPage = () => {
               <div className="flex items-center justify-center py-16 w-full">
                 <LoadingSpinner size="large" />
               </div>
-            ) : images.length > 0 ? (
+            ) : (images || []).length > 0 ? (
               <div className="w-full">
                 {/* Results Header */}
                 <div className="flex items-center justify-between mb-6 w-full">
@@ -281,7 +283,7 @@ const SearchPage = () => {
                     Search Results for "{searchQuery}"
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400">
-                    {images.length} image{images.length !== 1 ? 's' : ''} found
+                    {(images || []).length} image{(images || []).length !== 1 ? 's' : ''} found
                   </p>
                 </div>
 
@@ -291,7 +293,7 @@ const SearchPage = () => {
                     ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' 
                     : 'grid-cols-1'
                 }`}>
-                  {images.map((image, index) => (
+                  {(images || []).map((image, index) => (
                     <motion.div
                       key={image._id}
                       initial={{ opacity: 0, y: 20 }}
@@ -304,6 +306,7 @@ const SearchPage = () => {
                         onEdit={handleEditImage}
                         onDelete={handleDeleteImage}
                         onView={handleViewImage}
+                        viewMode={viewMode}
                       />
                     </motion.div>
                   ))}

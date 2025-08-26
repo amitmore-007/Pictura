@@ -46,7 +46,10 @@ api.interceptors.response.use(
       message: error.message
     });
     
-    if (error.response?.status === 401) {
+    // Don't redirect on login/signup 401 errors - let the auth context handle them
+    if (error.response?.status === 401 && 
+        !error.config?.url?.includes('/auth/login') && 
+        !error.config?.url?.includes('/auth/signup')) {
       localStorage.removeItem('token');
       // Only redirect if we're not already on login/signup pages
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
@@ -88,7 +91,9 @@ export const imageAPI = {
   getById: (id) => api.get(`/images/${id}`),
   update: (id, imageData) => api.put(`/images/${id}`, imageData),
   delete: (id) => api.delete(`/images/${id}`),
-  search: (query) => api.get('/images/search', { params: { q: query } }),
+  search: (query, page = 1) => api.get('/images/search', { 
+    params: { q: query, page, limit: 20 } 
+  }),
 };
 
 export default api;

@@ -5,11 +5,21 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const authRoutes = require('./routes/authRoutes');
-const folderRoutes = require('./routes/folderRoutes');
-const imageRoutes = require('./routes/imageRoutes');
-
 const app = express();
+
+// Check for required environment variables
+if (!process.env.JWT_SECRET) {
+  console.error('❌ JWT_SECRET is not defined in environment variables');
+  process.exit(1);
+}
+
+if (!process.env.MONGODB_URI) {
+  console.error('❌ MONGODB_URI is not defined in environment variables');
+  process.exit(1);
+}
+
+console.log('✅ Environment variables loaded');
+console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
 
 // Security middleware
 app.use(helmet());
@@ -28,11 +38,10 @@ const allowedOrigins = [
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
   'https://pictura-1.onrender.com', // Your actual frontend URL
-   // Add alternative URL if you have one
   process.env.CLIENT_URL,
 ].filter(Boolean); // Remove undefined values
 
-console.log('Allowed CORS origins:', allowedOrigins); // Debug log
+console.log('Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -64,10 +73,6 @@ const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI;
     
-    if (!mongoURI) {
-      throw new Error('MONGODB_URI is not defined in environment variables');
-    }
-    
     console.log('Attempting to connect to MongoDB...');
     console.log('MongoDB URI:', mongoURI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Hide credentials in logs
     
@@ -79,16 +84,30 @@ const connectDB = async () => {
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    console.log('\nTroubleshooting tips:');
-    console.log('1. Make sure MongoDB is running on your local machine');
-    console.log('2. Check if the connection string is correct');
-    console.log('3. Try: mongod --dbpath ./data/db');
     process.exit(1);
   }
 };
 
 // Connect to database
 connectDB();
+
+// Add middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    body: req.method !== 'GET' ? req.body : undefined,
+    query: req.query,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'authorization': req.headers.authorization ? 'Bearer ***' : undefined
+    }
+  });
+  next();
+});
+
+// Import routes after middleware
+const authRoutes = require('./routes/authRoutes');
+const folderRoutes = require('./routes/folderRoutes');
+const imageRoutes = require('./routes/imageRoutes');
 
 // Root route for testing
 app.get('/', (req, res) => {
@@ -117,7 +136,8 @@ app.get('/health', (req, res) => {
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    cors: allowedOrigins
+    cors: allowedOrigins,
+    jwtConfigured: !!process.env.JWT_SECRET
   });
 });
 
@@ -183,4 +203,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔑 JWT Secret configured: ${process.env.JWT_SECRET ? 'Yes' : 'No'}`);
 });

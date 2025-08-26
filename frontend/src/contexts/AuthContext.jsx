@@ -58,22 +58,30 @@ export const AuthProvider = ({ children }) => {
         passwordLength: credentials.password?.length 
       });
       
-      const { data } = await authAPI.login(credentials);
+      const response = await authAPI.login(credentials);
+      const data = response.data;
       
       console.log('Login response:', data);
       
-      if (data.success) {
+      if (data.success && data.token) {
         localStorage.setItem('token', data.token);
         dispatch({ type: 'AUTH_SUCCESS', payload: data.user });
         return data;
       } else {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || 'Login failed - no token received');
       }
     } catch (error) {
       console.error('Login error in context:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+      let errorMessage = 'Login failed';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       dispatch({ type: 'AUTH_FAILURE', payload: errorMessage });
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 
@@ -86,22 +94,30 @@ export const AuthProvider = ({ children }) => {
         passwordLength: userData.password?.length 
       });
       
-      const { data } = await authAPI.signup(userData);
+      const response = await authAPI.signup(userData);
+      const data = response.data;
       
       console.log('Signup response:', data);
       
-      if (data.success) {
+      if (data.success && data.token) {
         localStorage.setItem('token', data.token);
         dispatch({ type: 'AUTH_SUCCESS', payload: data.user });
         return data;
       } else {
-        throw new Error(data.message || 'Signup failed');
+        throw new Error(data.message || 'Signup failed - no token received');
       }
     } catch (error) {
       console.error('Signup error in context:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Signup failed';
+      let errorMessage = 'Signup failed';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       dispatch({ type: 'AUTH_FAILURE', payload: errorMessage });
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 
