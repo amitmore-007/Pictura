@@ -1,7 +1,7 @@
 # 📸 **Pictura** 
 ### *Modern Image Management Platform*
 
-![Pictura Hero](./public/hero-screenshot.png)
+![Pictura Hero](./frontend/public/Landing.png)
 
 **A beautiful, powerful, and intuitive image management platform for organizing your digital memories**
 
@@ -56,35 +56,35 @@
 ### 🎯 **Landing Page**
 *Beautiful hero section with compelling call-to-action*
 <br><br>
-<img src="./public/Landing.png" alt="Landing Page" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<img src="./frontend/public/Landing.png" alt="Landing Page" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
 
 <br><br>
 
 ### 🔐 **Authentication**
 *Secure and elegant sign-in experience*
 <br><br>
-<img src="./public/Login.png" alt="Sign In Page" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<img src="./frontend/public/Login.png" alt="Sign In Page" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
 
 <br><br>
 
 ### 🏠 **Dashboard**
 *Clean, organized dashboard with personalized welcome and folder overview*
 <br><br>
-<img src="./public/Dashboard.png" alt="Dashboard" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<img src="./frontend/public/Dashboard.png" alt="Dashboard" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
 
 <br><br>
 
 ### 📁 **Folder Management**
 *Beautiful color-coded folders with subfolders and image organization*
 <br><br>
-<img src="./public/Create-folder.png" alt="Folder Management" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<img src="./frontend/public/Create-folder.png" alt="Folder Management" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
 
 <br><br>
 
 ### 📤 **Upload Interface**
 *Intuitive drag & drop upload with folder selection and file management*
 <br><br>
-<img src="./public/Upload-folder.png" alt="Upload Modal" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<img src="./frontend/public/Upload-folder.png" alt="Upload Modal" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
 
 </div>
 
@@ -230,11 +230,11 @@ Once everything is set up, navigate to `http://localhost:5173` and start organiz
 ┃
 ┣ 📁 frontend/                # ⚛️ React Application
 ┃ ┣ 📁 public/               # 🌐 Public assets & screenshots
-┃ ┃ ┣ 📷 landing-page-screenshot.png
-┃ ┃ ┣ 📷 signin-screenshot.png
-┃ ┃ ┣ 📷 dashboard-screenshot.png
-┃ ┃ ┣ 📷 folder-view-screenshot.png
-┃ ┃ ┗ 📷 upload-modal-screenshot.png
+┃ ┃ ┣ 📷 Landing.png
+┃ ┃ ┣ 📷 Login.png
+┃ ┃ ┣ 📷 Dashboard.png
+┃ ┃ ┣ 📷 Create-folder.png
+┃ ┃ ┗ 📷 Upload-folder.png
 ┃ ┣ 📁 src/                  # 💻 Source code
 ┃ ┣ 📄 .env                  # ⚙️ Frontend config
 ┃ ┣ 📄 index.html            # 📄 Main HTML file
