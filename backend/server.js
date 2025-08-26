@@ -27,10 +27,12 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
+  'https://pictura-1.onrender.com', // Your actual frontend URL
+   // Add alternative URL if you have one
   process.env.CLIENT_URL,
-  // Add your Render frontend URL here when you deploy
-  // 'https://your-frontend-app-name.onrender.com'
 ].filter(Boolean); // Remove undefined values
+
+console.log('Allowed CORS origins:', allowedOrigins); // Debug log
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -88,6 +90,21 @@ const connectDB = async () => {
 // Connect to database
 connectDB();
 
+// Root route for testing
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'Dobbt API Server is running!',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth',
+      folders: '/api/folders',
+      images: '/api/images'
+    }
+  });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
@@ -98,13 +115,58 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     message: 'Server is running!',
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    cors: allowedOrigins
+  });
+});
+
+// API documentation route
+app.get('/api', (req, res) => {
+  res.status(200).json({
+    message: 'Dobbt API',
+    version: '1.0.0',
+    endpoints: {
+      auth: {
+        login: 'POST /api/auth/login',
+        signup: 'POST /api/auth/signup',
+        me: 'GET /api/auth/me'
+      },
+      folders: {
+        create: 'POST /api/folders',
+        getAll: 'GET /api/folders',
+        getById: 'GET /api/folders/:id',
+        update: 'PUT /api/folders/:id',
+        delete: 'DELETE /api/folders/:id'
+      },
+      images: {
+        upload: 'POST /api/images/upload',
+        getAll: 'GET /api/images',
+        getById: 'GET /api/images/:id',
+        update: 'PUT /api/images/:id',
+        delete: 'DELETE /api/images/:id',
+        search: 'GET /api/images/search'
+      }
+    }
   });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  console.log('404 - Route not found:', req.method, req.originalUrl);
+  res.status(404).json({ 
+    message: 'Route not found',
+    method: req.method,
+    url: req.originalUrl,
+    availableRoutes: [
+      '/',
+      '/health',
+      '/api',
+      '/api/auth/*',
+      '/api/folders/*',
+      '/api/images/*'
+    ]
+  });
 });
 
 // Error handling middleware
