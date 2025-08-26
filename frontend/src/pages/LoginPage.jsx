@@ -150,32 +150,7 @@ const LoginPage = () => {
               ))}
             </div>
 
-            {/* Testimonial */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="bg-white/40 dark:bg-dark-800/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 dark:border-dark-700/20"
-            >
-              <div className="flex items-center space-x-1 mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-400 text-sm">★</span>
-                ))}
-              </div>
-              <p className="text-gray-700 dark:text-gray-300 text-sm mb-3 italic">
-                "Dobbt has completely transformed how I organize my photography work. 
-                The interface is beautiful and incredibly intuitive!"
-              </p>
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">AK</span>
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">Alex Kim</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Professional Photographer</div>
-                </div>
-              </div>
-            </motion.div>
+            
           </motion.div>
 
           {/* Right Side - Login Form */}
