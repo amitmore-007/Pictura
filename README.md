@@ -14,7 +14,7 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-Powered-orange.svg?style=for-the-badge&logo=cloudinary)](https://cloudinary.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg?style=for-the-badge&logo=typescript)](https://typescriptlang.org/)
 
-[🚀 **Live Demo**](https://dobbt-demo.vercel.app) •
+[🚀 **Live Demo**](https://pictura-1.onrender.com/) •
 ---
 
 ## 🌟 **Why Choose Dobbt?**
